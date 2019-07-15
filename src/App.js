@@ -1,4 +1,6 @@
 import React from "react";
-import TodoList from "./TodoList";
+import Playground from "./battery/Playground.class.js";
+import TodoList from "./todo/TodoList.js";
 
-export default () => <TodoList />;
+
+export default () => <Playground />;
