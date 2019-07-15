@@ -1,32 +1,27 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import Battery from "./Battery";
 
-export default class Playground extends Component {
-  constructor(...args) {
-    super(...args);
-    this.state = { level: 0, charging: false };
-    this.handleChange = this.handleChange.bind(this);
-  }
-  componentDidMount() {
+export default function Playground() {
+  const [battery, setBattery] = useState({ level: 0, charging: false });
+  const handleChange = ({ target: { level, charging } }) => setBattery({ level, charging });
+
+  useEffect(() => {
+    let battery;
     navigator.getBattery().then(bat => {
-      this.battery = bat;
-      this.battery.addEventListener("levelchange", this.handleChange);
-      this.battery.addEventListener("chargingchange", this.handleChange);
-      this.handleChange({ target: this.battery });
+      battery = bat;
+      battery.addEventListener("levelchange", handleChange);
+      battery.addEventListener("chargingchange", handleChange);
+      handleChange({ target: battery });
     });
-  }
-  componentWillUnmount() {
-    this.battery.removeEventListener("levelchange", this.handleChange);
-    this.battery.removeEventListener("chargingchange", this.handleChange);
-  }
-  handleChange({ target: { level, charging } }) {
-    this.setState({ level, charging });
-  }
-  render() {
-    return (
-      <section>
-        <Battery {...this.state} />
-      </section>
-    );
-  }
+    return () => {
+      battery.removeEventListener("levelchange", handleChange);
+      battery.removeEventListener("chargingchange", handleChange);
+    };
+  }, []);
+
+  return (
+    <section>
+      <Battery {...battery} />
+    </section>
+  );
 }
