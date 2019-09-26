@@ -17,6 +17,7 @@ export default class TodoList extends Component {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleCompletedToggle = this.handleCompletedToggle.bind(this);
     this.handleKey = this.handleKey.bind(this);
+    this.todoId = 0;
   }
   handleKey({ key }) {
     this.setState(prevState => {
@@ -36,6 +37,7 @@ export default class TodoList extends Component {
   }
   componentDidMount() {
     const todos = JSON.parse(window.localStorage.getItem("todos") || "[]");
+    this.todoId = todos.reduce((memo, todo) => Math.max(memo, todo.id), 0);
     document.addEventListener("keydown", this.handleKey);
     this.update(todos);
     this.setState({ todos });
@@ -55,11 +57,12 @@ export default class TodoList extends Component {
   }
   handleNewSubmit(e) {
     e.preventDefault();
+    this.todoId += 1;
     this.setState(prevState => {
       return {
         todos: [
           ...prevState.todos,
-          { id: Date.now(), text: prevState.newTodo, completed: false }
+          { id: this.todoId, text: prevState.newTodo, completed: false }
         ],
         newTodo: ""
       };

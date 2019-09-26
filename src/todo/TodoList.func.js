@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NewTodo from "./NewTodo";
 import TodoItem from "./TodoItem";
-import About from "./About";
 import { Container, List } from "./Styled";
+import About from "./About";
 
 export default function TodoList() {
   const [newTodo, updateNewTodo] = useState("");
-  const initialTodos = () =>
-    JSON.parse(window.localStorage.getItem("todos") || "[]");
+  const todoId = useRef(0);
+  const initialTodos = () => {
+    const valueFromStorage = JSON.parse(
+      window.localStorage.getItem("todos") || "[]"
+    );
+    todoId.current = valueFromStorage.reduce(
+      (memo, todo) => Math.max(memo, todo.id),
+      0
+    );
+    return valueFromStorage;
+  };
   const [todos, updateTodos] = useState(initialTodos);
   useEffect(
     () => {
@@ -34,10 +43,11 @@ export default function TodoList() {
   }, []);
   const handleNewSubmit = e => {
     e.preventDefault();
+    todoId.current += 1;
     updateTodos(prevTodos => [
       ...prevTodos,
       {
-        id: Date.now(),
+        id: todoId.current,
         text: newTodo,
         completed: false
       }
